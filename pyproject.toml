@@ -1,0 +1,21 @@
+[project]
+name = "jevtest"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "marlongrech", email = "marlongrech@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=1.8.0",
+    "python-dotenv>=1.2.3",
+    "typesafe-sdk>=0.7.1",
+]
+
+[project.scripts]
+jevtest = "jevtest:main"
+
+[build-system]
+requires = ["uv_build>=0.12.2,<0.13.0"]
+build-backend = "uv_build"

@@ -1,0 +1,38 @@
+
+[1mExample 3 — Confidence: right, and will it hold?[0m
+------------------------------------------------
+
+  route    answer    conf  right  held across 34 asks        message
+  auto     kitchen   1.00   [32m ✓ [0m  [32m████████████ 100%[0m  My pizza has no cheese on it. Not less cheese.
+  auto     kitchen   1.00   [32m ✓ [0m  [32m████████████ 100%[0m  I ordered a Hawaiian and got a pepperoni. I'm 
+  auto     delivery  1.00   [32m ✓ [0m  [32m████████████ 100%[0m  The app says delivered. It was not delivered. 
+  auto     billing   1.00   [32m ✓ [0m  [32m████████████ 100%[0m  I was charged twice for one pizza.
+  auto     billing   1.00   [32m ✓ [0m  [32m████████████ 100%[0m  The voucher code SLICE10 doesn't work at check
+  auto     billing   1.00   [32m ✓ [0m  [32m████████████ 100%[0m  Love the food, but why am I paying a delivery 
+  suggest  kitchen   0.96   [32m ✓ [0m  [32m████████████ 100%[0m  Your pizza gave my whole office food poisoning
+  suggest  kitchen   0.95   [32m ✓ [0m  [32m████████████ 100%[0m  You forgot the garlic bread. Can you send it o
+  suggest  billing   0.94   [32m ✓ [0m  [32m████████████ 100%[0m  Can I pay the driver in cash?
+  suggest  other     0.89   [32m ✓ [0m  [32m████████████ 100%[0m  Are you hiring? I have strong opinions about c
+  suggest  delivery  0.86   [31m ✗ [0m  [32m████████████ 100%[0m  Pizza was 40 minutes late and it's the wrong o
+  human    delivery  0.75   [32m ✓ [0m  [32m████████████ 100%[0m  The driver was rude and the pizza was stone co
+  human    other     0.69   [32m ✓ [0m  [32m████████████ 100%[0m  Best pizza in town. That's it, that's the mess
+  human    delivery  0.66   [32m ✓ [0m  [32m████████████ 100%[0m  Your driver has driven past my house four time
+  human    kitchen   0.54   [31m ✗ [0m  [32m████████████ 100%[0m  I was charged for extra cheese and there's no 
+  human    delivery  0.53   [31m ✗ [0m  [31m█████████···  74%[0m  If the driver is late again tonight, do I get 
+                                       (also billing x9)
+  human    delivery  0.40   [31m ✗ [0m  [31m██████████··  85%[0m  The driver dropped my pizza and it's now a cal
+                                       (also billing x5)
+
+  bucket   messages   right  answer held
+  auto            6    6/6          100%
+  suggest         5    4/5          100%
+  human           6    3/6           93%
+
+  Shakiest: "If the driver is late again tonight, do I get my money back?"
+    probabilities from one ask     share of all asks picking it
+    delivery  ████████···· 0.65    █████████··· 74%
+    billing   ████········ 0.35    ███········· 26%
+    kitchen   ············ 0.00    ············ 0%
+    other     ············ 0.00    ············ 0%
+
+  578 calls, $0.009146

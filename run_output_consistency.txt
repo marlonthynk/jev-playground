@@ -1,0 +1,24 @@
+
+[1mExample 4 — Confidence and consistency[0m
+--------------------------------------
+
+  one ask                same answer in 34 runs                 message
+  billing   conf 1.00   [32m████████████████ 100%[0m                   I was charged twice for one pizza.
+  kitchen   conf 1.00   [32m████████████████ 100%[0m                   My pizza has no cheese on it. Not less chees
+  kitchen   conf 0.95   [32m████████████████ 100%[0m                   You forgot the garlic bread. Can you send it
+  delivery  conf 0.87   [32m████████████████ 100%[0m                   Pizza was 40 minutes late and it's the wrong
+  other     conf 0.80   [32m████████████████ 100%[0m                   Are you hiring? I have strong opinions about
+  other     conf 0.74   [32m████████████████ 100%[0m                   Best pizza in town. That's it, that's the me
+  delivery  conf 0.45   [31m████████████····  76%[0m (also billing x8) The driver dropped my pizza and it's now a c
+
+  confidence >= 0.80: answer held 100% of the time (5 messages)
+  confidence <  0.80: answer held 88% of the time (2 messages)
+
+  Least confident: "The driver dropped my pizza and it's now a calzone. Refund please."
+    probabilities from one ask     share of the runs picking it
+    delivery  ███████····· 0.59    █████████··· 76%
+    billing   ████········ 0.35    ███········· 24%
+    kitchen   █··········· 0.06    ············ 0%
+    other     ············ 0.00    ············ 0%
+
+  238 calls, $0.0037642

@@ -1,0 +1,161 @@
+
+[1mExample 1 — Noul, Choice and Score in one call[0m
+----------------------------------------------
+
+  Noul    driver_misbehaved  -> 0.96
+  Choice  wants              -> 'refund'  (confidence 1.00)
+            refund         1.00
+            just_venting   0.00
+            praise         0.00
+            remake         0.00
+  Score   anger              -> 1.74 on a 0-3 scale  (confidence 0.63)
+
+  384 ms | 482 input tokens | $0.00002024
+
+  Raw response:
+{
+  "model": "jev-1.13.0",
+  "answers": {
+    "driver_misbehaved": {
+      "type": "noul",
+      "noul": 0.96
+    },
+    "wants": {
+      "type": "choice",
+      "choice": "refund",
+      "confidence": 1.0,
+      "probabilities": {
+        "just_venting": 0.0,
+        "praise": 0.0,
+        "remake": 0.0,
+        "refund": 1.0
+      }
+    },
+    "anger": {
+      "type": "score",
+      "score": 1.74,
+      "confidence": 0.63,
+      "legend": {
+        "0": "Happy",
+        "1": "Mildly annoyed",
+        "2": "Properly annoyed",
+        "3": "Furious; writing a one-star review as we speak"
+      },
+      "probabilities": {
+        "0": 0.0,
+        "1": 0.32,
+        "2": 0.63,
+        "3": 0.05
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 482,
+    "output_tokens": 85
+  }
+}
+
+[1mExample 2 — Fan-out: more questions, same call[0m
+----------------------------------------------
+
+  questions  ms (median)  input tokens          cost
+          1          254           327  $ 0.00001373
+          2          214           339  $ 0.00001424
+          4          242           360  $ 0.00001512
+          8          233           410  $ 0.00001722
+         16          224           516  $ 0.00002167
+         32          247           724  $ 0.00003041
+
+  All 32 answers from the last call:
+    0.92  The customer liked the food
+    0.94  The food was too spicy
+    0.72  Delivery was late
+    0.15  The driver was rude
+    0.98  The packaging was damaged or soggy
+    0.93  The customer will order again
+    0.08  The customer wants a refund
+    1.00  The customer mentions a pet
+    0.99  The customer is joking at least once
+    0.96  The review mentions a specific pizza by name
+    0.00  The customer mentions an allergy
+    1.00  The review gives a star rating
+    0.99  The customer is vegan or ordered vegan food
+    0.01  The customer mentions a price
+    0.00  The customer mentions a discount code
+    0.99  The customer mentions time waited
+    0.09  The customer is angry
+    0.70  A manager should read this
+    0.84  This review is safe to feature on our website
+    0.00  The customer mentions pineapple
+    0.14  The customer mentions the temperature of the food
+    0.01  The customer asks a question
+    0.00  The customer mentions a competitor
+    1.00  The review is written in English
+    0.98  The customer mentions safety equipment
+    0.02  The customer says the food was cold
+    0.11  The customer mentions their family
+    0.87  The customer uses a nickname they were called
+    0.02  The review mentions the kitchen staff
+    0.17  The customer praises the driver
+    0.01  The customer threatens to leave a bad review elsewhere
+    0.79  The customer would recommend us
+
+[1mExample 3 — Triage with confidence gating[0m
+-----------------------------------------
+  [32m✓[0m auto     kitchen   1.00  My pizza has no cheese on it. Not less cheese. None.
+  [32m✓[0m auto     kitchen   1.00  I ordered a Hawaiian and got a pepperoni. I'm not complainin
+  [32m✓[0m human    delivery  0.67  Your driver has driven past my house four times. I'm waving.
+  [32m✓[0m auto     delivery  1.00  The app says delivered. It was not delivered. Unless the piz
+  [32m✓[0m auto     billing   1.00  I was charged twice for one pizza.
+  [32m✓[0m auto     billing   1.00  The voucher code SLICE10 doesn't work at checkout.
+  [32m✓[0m suggest  other     0.86  Are you hiring? I have strong opinions about crust.
+  [32m✓[0m human    other     0.71  Best pizza in town. That's it, that's the message.
+  [31m✗[0m human    delivery  0.42  The driver dropped my pizza and it's now a calzone. Refund p
+  [31m✗[0m suggest  delivery  0.83  Pizza was 40 minutes late and it's the wrong one.
+  [32m✓[0m suggest  kitchen   0.93  You forgot the garlic bread. Can you send it or do I get mon
+  [32m✓[0m suggest  billing   0.94  Can I pay the driver in cash?
+  [32m✓[0m suggest  kitchen   0.96  Your pizza gave my whole office food poisoning.
+  [32m✓[0m auto     billing   1.00  Love the food, but why am I paying a delivery fee for pickup
+
+  auto      6 messages, 6/6 correct
+  suggest   5 messages, 4/5 correct
+  human     3 messages, 2/3 correct
+
+  14 messages in 580 ms, $0.0002216
+
+  Sidebar: consistency, on "The driver dropped my pizza and it's now a calzone. Refund please."
+    same question x10     -> ['delivery'], confidence 0.41 to 0.51
+    all 24 option orders -> ['billing', 'delivery'], confidence 0.33 to 0.57
+
+[1mExample 4 — Jev picks the context and the tool, the LLM talks[0m
+-------------------------------------------------------------
+
+[1m> Where is my pizza?? Order #4417. It's been 50 minutes and I've started eating the box.[0m
+  Jev   need=where_is_my_order (1.00)  allergy=0.01  mood=1.7  | 238 ms, $0.0000186
+  Plan  docs ['delivery_policy'] (1 of 4)  tools ['track_order'] (1 of 2)
+        rule: The customer is upset. Start with a short, sincere apology.
+  LLM   claude-sonnet-5 | 2003 ms, $0.002258
+    "I'm really sorry about the wait — that's frustrating, especially when you're hungry! Let me look up order #4417 right now to see what's going on."
+    -> calls track_order({'order_id': '4417'})
+
+[1m> Does the Garden Party have nuts in it? My daughter is allergic.[0m
+  Jev   need=menu_question (1.00)  allergy=0.99  mood=0.3  | 294 ms, $0.0000181
+  Plan  docs ['menu', 'allergens'] (2 of 4)  tools - (0 of 2)
+        rule: The customer mentioned an allergy. Answer only from the allergen sheet. Never gu
+  LLM   claude-sonnet-5 | 2354 ms, $0.002140
+    "Yes, the Garden Party contains tree nuts — the pesto is made with walnuts. Given your daughter's allergy, I'd recommend avoiding this pizza, and please note our kitchen handles nuts generally, so we can't guarantee any pizza is completely nut-free."
+
+[1m> Order #5120 arrived cold and upside down. It's basically a lasagne now. Money back please.[0m
+  Jev   need=refund (1.00)  allergy=0.01  mood=1.7  | 220 ms, $0.0000185
+  Plan  docs ['refund_policy'] (1 of 4)  tools ['issue_refund'] (1 of 2)
+        rule: The customer is upset. Start with a short, sincere apology.
+  LLM   claude-sonnet-5 | 2419 ms, $0.002748
+    "I'm so sorry, that's a terrible way to receive your pizza – a "pizza lasagne" is not what we're going for! Since this is within 24 hours, I'll get your full refund processed right away."
+    -> calls issue_refund({'order_id': '#5120', 'reason': 'Order arrived cold and upside down/damaged'})
+
+[1m> Hi, something's not right with my order.[0m
+  Jev   need=other (0.66)  allergy=0.02  mood=0.9  | 224 ms, $0.0000179
+  Plan  docs - (0 of 4)  tools - (0 of 2)
+        rule: It is not clear what the customer needs. Ask one short clarifying question. Do n
+  LLM   claude-sonnet-5 | 1615 ms, $0.000674
+    "I'm sorry to hear that! Could you tell me more about what seems wrong with your order — like a missing item, wrong item, or a delivery issue?"
